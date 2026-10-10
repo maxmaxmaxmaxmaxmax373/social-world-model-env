@@ -1,0 +1,7 @@
+# 第一级规则：固定储蓄比例 + 固定政策。只为跑通和对账。
+scene: level1_fixed
+households:
+  rule: fixed
+  shares: [1.0, 0.0, 0.0, 0.0]
+pension:
+  rule: fixed

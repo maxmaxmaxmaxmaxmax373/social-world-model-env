@@ -1,0 +1,9 @@
+# 四种行为类型混合，政策固定且明显欠筹资（缴费率 0.12，平衡值约 0.156）：
+# 基金约 30 年后耗尽，自动平衡每年削减待遇，看 A 型和 S 型的预期与储蓄如何与 R 型分化。
+scene: underfunded_mixed
+households:
+  rule: expectation
+  shares: [0.4, 0.2, 0.2, 0.2]
+pension:
+  rule: fixed
+  tau_p: 0.12

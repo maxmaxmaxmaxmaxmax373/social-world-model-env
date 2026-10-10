@@ -1,0 +1,7 @@
+# 第二级规则：四种行为类型混合；养老金当局按基金占产出比调整缴费率。
+scene: level2_mixed
+households:
+  rule: expectation
+  shares: [0.4, 0.2, 0.2, 0.2]
+pension:
+  rule: fund_ratio

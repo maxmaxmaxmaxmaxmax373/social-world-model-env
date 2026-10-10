@@ -1,0 +1,78 @@
+# 第一类（代际与养老金）rule-based 环境：全部默认参数。
+# 场景文件只需写要覆盖的键，运行时与本文件深合并（和 EconGym 的 base_config.yaml 用法相同）。
+scene: base
+seed: 1
+T: 200                       # 主运行年数
+output_dir: output
+save_cohorts: true           # 是否保存每年的分队列数组（c, a, s, b_e）
+
+population:
+  J: 80                      # 模型年龄 1..80，对应真实年龄 21..100
+  entry_age_real: 21
+  N0: 10000                  # 初始总人口（相对规模，不影响比率）
+  survival_file: data/survival_cdc2022.csv
+  fertility_file: data/fertility_synthetic.csv
+  growth_target: 1.0         # Leslie 矩阵主特征值：1.0 = 人口平稳
+  fertility_shock:           # 一次性生育冲击（用于人口回声检验）
+    year: null               # 第几年进入的新队列被放大；null = 不冲击
+    multiplier: 1.0
+
+production:
+  alpha: 0.33
+  delta: 0.06
+  g: 0.015                   # 生产率趋势增长 log Z = g t + z
+  rho_z: 0.9
+  sigma_z: 0.02
+  Z0: 1.0
+  shocks_on: true
+  efficiency_file: data/efficiency_scf2022.csv
+  initial_KY_guess: 3.0      # 燃烧期起点的资本产出比猜测
+
+households:
+  labor: 0.3333              # 在职者固定工时（时间份额），rule-based 阶段劳动无弹性
+  sigma: 2.0                 # 相对风险厌恶
+  varphi: 0.5                # Frisch 弹性
+  chi: 1.0                   # 劳动负效用权重
+  types: [R, P, A, S]
+  shares: [1.0, 0.0, 0.0, 0.0]
+  rule: expectation          # fixed | expectation
+  fixed_saving_workers: 0.69127  # rule=fixed 时在职者对总资源 x 的储蓄比例（calibrate.py 校准到 K/Y=3）
+  tilt: 1.13199              # rule=expectation 时消费的缩放因子（calibrate.py 校准到 K/Y=3，R 型）
+  present_bias_markup: 0.15  # P 型：消费比 R 型规则多的比例
+  gamma_A: 0.05              # A 型：预期向“信号”靠拢的速度
+  fund_confidence_ref: 0.5   # A、S 型的警戒线：基金占产出比低于此值时，按“缴费率/抚养比”预期；设为 0 则只看实际发放
+  omega_s: 0.3               # S 型：预期与储蓄向同龄人平均靠拢的权重（储蓄参照上一年同龄人的实际值）
+  s_max: 0.99
+
+pension:
+  tau_p: 0.14                # 缴费率。初始人口下收支平衡的值是 kappa × 抚养比 = 0.156，0.14 略欠筹资
+  kappa: 0.40                # 替代率：人均待遇 = kappa × 在职者平均工资
+  retire_age_real: 65
+  F0_over_Y: 0.5             # 初始基金占产出比
+  H: 5                       # 政策调整周期（年）
+  bounds:
+    tau_p: [0.0, 0.4]
+    kappa: [0.0, 1.0]
+    retire_age_real: [60, 70]
+  max_step:                  # 每次决策的最大调整幅度
+    tau_p: 0.02
+    kappa: 0.05
+    retire_age_real: 1
+  rule: fixed                # fixed | fund_ratio
+  fund_ratio_rule:           # rule=fund_ratio：基金占产出比低于 low 则上调缴费率，高于 high 则下调
+    low: 0.2
+    high: 2.0
+    dtau: 0.02
+  phi_F: 1.0                 # 自动平衡触发一次的惩罚
+  beta: 0.96                 # 政策奖励的贴现因子
+
+fiscal:                      # G1 下财政当局不启用，全部为 0
+  tau_l: 0.0
+
+burn_in:
+  years: 400                 # 燃烧期最长年数
+  tol: 1.0e-9                # K/Y 相邻两年变化小于此值即停止
+
+checks:
+  identities: true           # 每年核对会计恒等式，残差超过 tol 直接报错
+  tol: 1.0e-8                # 残差阈值（相对 GDP）

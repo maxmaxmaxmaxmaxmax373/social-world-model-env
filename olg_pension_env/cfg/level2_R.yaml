@@ -1,0 +1,7 @@
+# 第二级规则：家庭按预期养老金平摊消费，全部为 R 型；政策固定。
+scene: level2_R
+households:
+  rule: expectation
+  shares: [1.0, 0.0, 0.0, 0.0]
+pension:
+  rule: fixed
